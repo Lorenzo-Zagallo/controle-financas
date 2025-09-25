@@ -1,21 +1,49 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Image } from 'react-native';
-import { SafeAreaView, TextInput } from "react-native-web";
+import { StyleSheet, Text, View, Image, StatusBar } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput } from "react-native-web";
 
+// Text
+const TextoAninhado = () => {
+	const [titulo, setTitulo] = useState("Texto do elemento filho");
+
+	const modificaTexto = () => {
+		setTitulo("Esse texto está sendo exibido pois o primeiro elemento do texto foi pressionado/tocado");
+	};
+
+	return (
+		<SafeAreaView>
+			<Text style={styles.baseText}>
+				<Text style={styles.titulo} onPress={modificaTexto}>
+					{titulo}
+					{"\n"}
+				</Text>
+			</Text>
+		</SafeAreaView>
+	);
+};
+
+// Image
+const Imagem = () => {
+	return (
+		<Image style={styles.imagem} source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }} />
+	);
+}
+
+// TextInput
 const MeuTextoInput = () => {
 	const [texto, setTexto] = React.useState(null);
 	const [numero, setNumero] = React.useState(0);
 
 	return (
 		<SafeAreaView>
-			<TextInput 
-				style={styles.meuTextInput} 
-				value={texto || ''} 
-				onChangeText={setTexto} 
-				placeholder="Digite um texto"/>
-			<TextInput 
-				style={styles.meuTextInput} 
-				value={String(numero)} 
+			<TextInput
+				style={styles.meuTextInput}
+				value={texto || ''}
+				onChangeText={setTexto}
+				placeholder="Digite um texto" />
+			<TextInput
+				style={styles.meuTextInput}
+				value={String(numero)}
 				onChangeText={text => setNumero(Number(text))}
 				keyboardType="numeric" />
 			<Text style={styles.valueText}>
@@ -28,26 +56,44 @@ const MeuTextoInput = () => {
 	);
 };
 
-const TextoAninhado = () => {
-	const [titulo, setTitulo] = useState("Texto do elemento filho");
+// ScrollView
+const Lista = () => {
+	return (
+		<SafeAreaView style={styles.safeContainer}>
+			<ScrollView style={styles.containerScrollView}>
+				<Text style={styles.text}>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+					Pellentesque id dui sed nulla imperdiet scelerisque.
+					Integer malesuada facilisis nibh varius eleifend.
+					Cras a velit laoreet dui interdum consectetur.
+					Pellentesque volutpat placerat mauris in interdum.
+					Pellentesque non egestas sem. Suspendisse malesuada at augue
+					sit amet pretium.
+					Praesent odio nisl, semper vitae purus a, elementum ultrices arcu.
+					Praesent blandit lectus et aliquet posuere.
+					Nulla dictum, nisi id feugiat suscipit, mi sem maximus turpis,
+					vel aliquet massa ex sit amet sem.
+					Sed ullamcorper enim non elit vestibulum, feugiat euismod elit
+					consectetur. In et pulvinar eros.
+				</Text>
+			</ScrollView>
+		</SafeAreaView>
+	);
+};
 
-	const modificaTexto = () => {
-		setTitulo("Esse texto está sendo exibido pois o primeiro elemento do texto foi pressionado/tocado");
-	};
-
+// View
+const Main = () => {
 	return (
 		<View style={styles.container}>
-			<Text style={styles.baseText}>
-				<Text style={styles.titulo} onPress={modificaTexto}>
-					{titulo}
-					{"\n"}
-				</Text>
-			</Text>
-			<Image style={styles.imagem} source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }} />
+			<TextoAninhado />
+			<Imagem />
 			<MeuTextoInput />
+			<Lista />
 		</View>
 	);
 };
+
+export default Main;
 
 const styles = StyleSheet.create({
 	container: {
@@ -68,9 +114,18 @@ const styles = StyleSheet.create({
 	imagem: {
 		margin: 10, width: 50, height: 50, alignSelf: 'center'
 	},
+	safeContainer: {
+		flex: 1,
+		paddingTop: StatusBar.currentHeight,
+	},
+	containerScrollView: {
+		backgroundColor: 'grey',
+		marginHorizontal: 20,
+	},
+	text: {
+		fontSize: 26,
+	},
 });
-
-export default TextoAninhado;
 
 
 /*  
@@ -91,5 +146,8 @@ Assim como a tag HTML <img>, este componente permite a exibição de diferentes 
 
 TextInput
 Este componente permite a entrada de textos por meio do teclado, provendo ainda uma série de funcionalidades, por exemplo, autocorreção, autocapitalização e utilização de diferentes tipos de teclado, assim como apenas do teclado numérico (digite algum texto no segundo input no exemplo).
+
+ScrollView
+Este componente também é um contêiner, sendo, a exemplo da View, utilizado para armazenar conteúdo — e outros elementos —, permitindo a interação na tela por meio de rolagem (scrolling). Logo, o ScrollView, para funcionar corretamente, precisa ter uma altura limitada/definida, já que sua serventia é justamente conter elementos filhos com altura ilimitada. Teste o código a seguir, modificando o tamanho do texto (aumentando-o e o diminuindo) a fim de visualizar, na prática, como tal componente se comporta:
 
 */
