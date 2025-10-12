@@ -1,5 +1,8 @@
-import React, { use, useState } from "react";
-import { View, StyleSheet, Text, TextInput, Image, StatusBar, ScrollView } from 'react-native';
+import React, { Component, useState } from "react";
+import {
+	View, StyleSheet, Text, TextInput, Image,
+	StatusBar, ScrollView, Button, Modal, ActivityIndicator
+} from 'react-native';
 import { SafeAreaView } from "react-native-web";
 
 // Text
@@ -85,6 +88,7 @@ const Lista = () => {
 const Soma = () => {
 	const [parc1, setParc1] = useState("Valor1");
 	/*const [parc1, setParc1] = useState("Valor1");
+	Explicação detalhada:
 	useState("Valor1"): O hook useState é usado para adicionar estado a um componente funcional. O valor inicial do estado é passado como argumento para useState. Neste caso, o valor inicial de parc1 é a string "Valor1".
 
 	const [parc1, setParc1]: A sintaxe const [variavel, setVariavel] é uma maneira de desestruturar o retorno de useState. O primeiro valor, parc1, é a variável que armazena o estado atual. O segundo valor, setParc1, é a função que será usada para atualizar o valor de parc1.
@@ -126,26 +130,98 @@ const Soma = () => {
 	const [parc2, setParc2] = useState("Valor2");
 	const [somaR, setSomaR] = useState("Toque aqui para somar.");
 
+	// NOVO ESTADO: Para controlar a visibilidade do ActivityIndicator
+	const [isLoading, setIsLoading] = useState(false);
+
 	function executarSoma() {
-		let p1 = parseInt(parc1);
-		console.log("Valor de p1: ", p1);
-		let p2 = parseInt(parc2);
-		console.log("Valor de p2: ", p2);
-		let resultado = p1 + " + " + p2 + " = " + (p1 + p2);
-		setSomaR(resultado);
+		// 1. Inicia o carregamento (mostra o ActivityIndicator)
+		setIsLoading(true);
+		setSomaR("Calculando..."); // Feedback imediato
+
+		// Simula um atraso de 2 segundos (como se estivesse buscando uma API)
+		setTimeout(() => {
+
+			let p1 = parseInt(parc1);
+			// Verifica se o valor é um número válido (para evitar NaN)
+			if (isNaN(p1)) p1 = 0;
+			console.log("Valor de p1: ", p1);
+
+			let p2 = parseInt(parc2);
+			if (isNaN(p2)) p2 = 0;
+			console.log("Valor de p2: ", p2);
+
+			// 2. Calcula o resultado
+			let resultado = p1 + " + " + p2 + " = " + (p1 + p2);
+			setSomaR(resultado);
+
+			// 3. Finaliza o carregamento (esconde o ActivityIndicator)
+			setIsLoading(false);
+		}, 2000); // 2000 milissegundos = 2 segundos
 	}
 
 	return (
 		<View style={styles.container}>
-			<TextInput style={styles.entrada} value={parc1} onChangeText={setParc1} keyboardType="numeric"/>
-			<TextInput style={styles.entrada} value={parc2} onChangeText={setParc2} keyboardType="numeric"/>
-			<Text styles={styles.texto} onPress={executarSoma}>{somaR}</Text>
+			<TextInput style={styles.entrada} value={parc1} onChangeText={setParc1} keyboardType="numeric" />
+			<TextInput style={styles.entrada} value={parc2} onChangeText={setParc2} keyboardType="numeric" />
+
+			{/* Renderização Condicional: Se estiver carregando, mostra o indicador; senão, mostra o texto */}
+			{isLoading ? (
+				// ActivityIndicator enquanto carrega o resultado da soma
+				<ActivityIndicator
+					size="large" // Grande
+					color="#0000ff" // Azul
+					style={{ marginTop: 10 }}
+				/>
+			) : (
+				// Texto que exibe o resultado ou a mensagem inicial
+				<Text styles={styles.texto} onPress={executarSoma}>{somaR}</Text>
+			)
+			}
+
 		</View>
 	);
 };
 
+// Modal
+// class MeuModal extends Component {
+// 	constructor(props) {
+// 		super(props);
+// 		this.state = { isVisible: false };// O estado que controla a visibilidade
+// 	}
+// 		render() {
+// 			return (
+// 				<View style={styles.container}>
+// 					<Modal
+// 						animationType={'slide'}
+// 						transparent={false}
+// 						visible={this.state.isVisible} // Conexão chave: Controla a exibição
+// 						onRequestClose={() => {
+// 							this.setState({ isVisible: false });
+// 						}}
+// 					>
+// 						<View style={styles.modal}>
+// 							<Text style={styles.text}>Modal está aberto!</Text>
+// 							<Button title="Clique para fechar o Modal" onPress={() => {
+// 								this.setState({ isVisible: false });
+// 							}} />
+// 						</View>
+// 					</Modal>
+// 				</View>
+// 			)
+// 		}
+// }
+
 // View
 const Main = () => {
+
+	// adicionar o estado do modal
+	const [isModalVisible, setIsModalVisible] = useState(false);
+
+	// função para alternar a visibilidade do modal
+	const toggleModal = () => {
+		setIsModalVisible(!isModalVisible);
+	};
+
 	return (
 		<View style={styles.container}>
 			<TextoAninhado />
@@ -153,6 +229,28 @@ const Main = () => {
 			<MeuTextoInput />
 			<Lista />
 			<Soma />
+
+			{/* Botão para abrir o modal */}
+			<Button title="Abrir Modal" onPress={() => setIsModalVisible(true)} color="#841584" />
+
+			{/* Modal */}
+			<Modal animationType="slide"
+				transparent={false}
+				visible={isModalVisible}
+				// Essencial para o botão 'voltar' do Android
+				onRequestClose={() => setIsModalVisible(false)}>
+
+				<View style={styles.modalCenteredView}>
+					<View style={styles.modalView}>
+						<Text style={styles.modalText}>MODAL ESTÁ ABERTO!</Text>
+						<Button
+							title="Fechar Modal"
+							onPress={() => setIsModalVisible(false)} // Fecha ao pressionar
+						/>
+					</View>
+				</View>
+
+			</Modal>
 		</View>
 	);
 };
@@ -192,7 +290,32 @@ const styles = StyleSheet.create({
 	},
 	texto: {
 		fontFamily: "Verdana", fontSize: 24,
-	}
+	},
+	modalCenteredView: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginTop: 22,
+		backgroundColor: 'rgba(0,0,0,0.5)' // Fundo semi-transparente
+	},
+	modalView: {
+		margin: 20,
+		backgroundColor: 'white',
+		borderRadius: 20,
+		padding: 35,
+		alignItems: 'center',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.25,
+		shadowRadius: 4,
+		elevation: 5,
+	},
+	modalText: {
+		marginBottom: 15,
+		textAlign: 'center',
+		fontSize: 18,
+		fontWeight: 'bold',
+	},
 });
 
 
