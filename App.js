@@ -1,9 +1,77 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import {
 	View, StyleSheet, Text, TextInput, Image,
-	StatusBar, ScrollView, Button, Modal, ActivityIndicator
+	StatusBar, ScrollView, Button, Modal, ActivityIndicator, FlatList
 } from 'react-native';
-import { FlatList, SafeAreaView } from "react-native-web";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+const Stack = createNativeStackNavigator();
+
+const TelaDetalhes = () => <Text>Detalhes de um item</Text>;
+
+// NOVA TELA DE CÁLCULO
+const TelaSoma = () => {
+	const [parc1, setParc1] = useState("Valor1");
+	const [parc2, setParc2] = useState("Valor2");
+	const [somaR, setSomaR] = useState("Toque aqui para somar.");
+	const [isLoading, setIsLoading] = useState(false);
+
+	function executarSoma() {
+		// ... (Mantenha toda a lógica do cálculo e do setTimeout aqui)
+		setIsLoading(true);
+		setSomaR("Calculando...");
+
+		setTimeout(() => {
+			let p1 = parseInt(parc1) || 0;
+			let p2 = parseInt(parc2) || 0;
+			let resultado = p1 + " + " + p2 + " = " + (p1 + p2);
+			setSomaR(resultado);
+			setIsLoading(false);
+		}, 2000);
+	}
+
+	return (
+		<View style={styles.telaSomaContainer}>
+			<TextInput style={styles.entrada} value={parc1} onChangeText={setParc1} keyboardType="numeric" />
+			<TextInput style={styles.entrada} value={parc2} onChangeText={setParc2} keyboardType="numeric" />
+
+			{isLoading ? (
+				<ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />
+			) : (
+				<Text style={styles.texto} onPress={executarSoma}>{somaR}</Text>
+			)}
+		</View>
+	);
+};
+
+const AppNavigator = () => {
+	return (
+		<NavigationContainer>
+			<Stack.Navigator>
+				{/*
+					Cada Screen (Tela) é um item na sua pilha.
+					A primeira Screen listada é a tela inicial (a base da pilha).
+				*/}
+				<Stack.Screen
+					name="Principal"
+					component={TelaPrincipal} // <--- COMPONENTE PRINCIPAL É A TELA INICIAL
+					options={{ title: 'Início do App' }}
+				/>
+				<Stack.Screen
+					name="Detalhes"
+					component={TelaDetalhes}
+					options={{ title: 'Tela de Detalhes' }}
+				/>
+				<Stack.Screen
+					name="Soma"
+					component={TelaSoma}
+					options={{ title: 'Calculadora de Soma' }}
+				/>
+			</Stack.Navigator>
+		</NavigationContainer>
+	)
+}
 
 // Text
 const TextoAninhado = () => {
@@ -14,14 +82,14 @@ const TextoAninhado = () => {
 	};
 
 	return (
-		<SafeAreaView>
+		<View>
 			<Text style={styles.baseText}>
 				<Text style={styles.titulo} onPress={modificaTexto}>
 					{titulo}
 					{"\n"}
 				</Text>
 			</Text>
-		</SafeAreaView>
+		</View>
 	);
 };
 
@@ -38,7 +106,7 @@ const MeuTextoInput = () => {
 	const [numero, setNumero] = React.useState(0);
 
 	return (
-		<SafeAreaView>
+		<View>
 			<TextInput
 				style={styles.meuTextInput}
 				value={texto || ''}
@@ -55,7 +123,7 @@ const MeuTextoInput = () => {
 			<Text style={styles.valueText}>
 				Número: {numero}
 			</Text>
-		</SafeAreaView>
+		</View>
 	);
 };
 
@@ -85,50 +153,10 @@ const Lista = () => {
 // Calculadora
 const Soma = () => {
 	const [parc1, setParc1] = useState("Valor1");
-	/*const [parc1, setParc1] = useState("Valor1");
-	Explicação detalhada:
-	useState("Valor1"): O hook useState é usado para adicionar estado a um componente funcional. O valor inicial do estado é passado como argumento para useState. Neste caso, o valor inicial de parc1 é a string "Valor1".
-
-	const [parc1, setParc1]: A sintaxe const [variavel, setVariavel] é uma maneira de desestruturar o retorno de useState. O primeiro valor, parc1, é a variável que armazena o estado atual. O segundo valor, setParc1, é a função que será usada para atualizar o valor de parc1.
-
-	Como funciona:
-	Inicialização: Quando o componente for renderizado pela primeira vez, o valor inicial de parc1 será "Valor1".
-
-	Alteração de estado: Você pode alterar o valor de parc1 chamando a função setParc1, passando um novo valor como argumento. Por exemplo:
-
-	javascript
-	Copiar código
-	setParc1("Novo Valor");
-	Após essa linha ser executada, o valor de parc1 será atualizado para "Novo Valor", e o componente será re-renderizado com o novo valor.
-
-	Exemplo de uso no React Native:
-	javascript
-	Copiar código
-	import React, { useState } from 'react';
-	import { View, Text, Button } from 'react-native';
-
-	const MeuComponente = () => {
-	const [parc1, setParc1] = useState("Valor1");
-
-	return (
-		<View>
-		<Text>{parc1}</Text>
-		<Button title="Alterar valor" onPress={() => setParc1("Novo Valor")} />
-		</View>
-	);
-	};
-
-	export default MeuComponente;
-	Neste exemplo:
-
-	O estado parc1 começa com o valor "Valor1".
-
-	Quando o botão é pressionado, a função setParc1("Novo Valor") é chamada, o que altera o estado para "Novo Valor", e o texto na tela será atualizado.
-	*/
 	const [parc2, setParc2] = useState("Valor2");
 	const [somaR, setSomaR] = useState("Toque aqui para somar.");
 
-	// NOVO ESTADO: Para controlar a visibilidade do ActivityIndicator
+	// estado para controlar a visibilidade do ActivityIndicator
 	const [isLoading, setIsLoading] = useState(false);
 
 	function executarSoma() {
@@ -136,7 +164,7 @@ const Soma = () => {
 		setIsLoading(true);
 		setSomaR("Calculando..."); // Feedback imediato
 
-		// Simula um atraso de 2 segundos (como se estivesse buscando uma API)
+		// simula um atraso de 2 segundos (como se estivesse buscando uma API)
 		setTimeout(() => {
 
 			let p1 = parseInt(parc1);
@@ -209,25 +237,19 @@ const Soma = () => {
 // 		}
 // }
 
-// Dados que representam os componentes
+// componentes do flatlist (simula uma base de dados)
 const COMPONENTES = [
 	{ id: '1', component: Imagem },
 	{ id: '2', component: TextoAninhado },
 	{ id: '3', component: MeuTextoInput },
 	{ id: '4', component: Lista },
 	{ id: '5', component: Soma },
-	// Adicionar um item especial para o botão do Modal
-	{ id: '6', component: 'MODAL_BUTTON' },
+	{ id: '6', component: 'NAVIGATE_SOMA' },
+	{ id: '7', component: 'MODAL_BUTTON' },
 ];
-{/* <TextoAninhado />
-	<Imagem />
-	<MeuTextoInput />
-	<Lista />
-	<Soma /> */}
 
-
-// View
-const Main = () => {
+// tela principal que usa o FlatList para renderizar os componentes da array COMPONENTES acima
+const TelaPrincipal = ({ navigation }) => {
 
 	// adicionar o estado do modal
 	const [isModalVisible, setIsModalVisible] = useState(false);
@@ -243,6 +265,19 @@ const Main = () => {
 			return (
 				<View style={{ marginVertical: 10, width: '80%', alignSelf: 'center' }}>
 					<Button title="Abrir Modal" onPress={toggleModal} color="#841584" />
+				</View>
+			);
+		}
+
+		// 2. Lógica para o botão de Navegação (Soma)
+		if (item.component === 'NAVIGATE_SOMA') {
+			return (
+				<View style={{ marginVertical: 10, width: '80%', alignSelf: 'center' }}>
+					<Button
+						title="Abrir Calculadora (Soma)"
+						onPress={() => navigation.navigate('Soma')} // <--- NAVEGAÇÃO AQUI!
+						color="blue"
+					/>
 				</View>
 			);
 		}
@@ -266,6 +301,8 @@ const Main = () => {
 				ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
 				// Cabeçalho e rodapé da lista
 				ListHeaderComponent={<Text style={styles.header}>Meu Aplicativo React Native</Text>}
+				// Estilo do container do FlatList
+				contentContainerStyle={styles.flatListContentContainer}
 			/>
 
 			{/* Botão para abrir o modal */}
@@ -293,13 +330,17 @@ const Main = () => {
 	);
 };
 
-export default Main;
+export default AppNavigator;
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1, // Essencial para Flatlist
-		padding: 20,
+		flex: 1, // essencial para Flatlist
 		// justifyContent e alignItems não é necessário pois o FlatList os gerencia
+	},
+	telaDetalhes: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center'
 	},
 	header: {
 		fontSize: 24,
@@ -359,7 +400,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginTop: 22,
-		backgroundColor: 'rgba(0,0,0,0.5)' // Fundo semi-transparente
+		backgroundColor: 'rgba(0,0,0,0.5)'
 	},
 	modalView: {
 		margin: 20,
@@ -379,29 +420,14 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		fontWeight: 'bold',
 	},
+	flatListContentContainer: {
+		paddingHorizontal: 20,
+		paddingBottom: 50,
+	},
+	telaSomaContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
 });
-
-
-/*  
-<View>	      =	  <div>
-<Text>	      =	  <p>
-<Image>       =	  <img>
-<TextInput>	  =   <input type=”text”>
-<ScrollView>  =	  <div>
-
-View
-A View é o principal componente na construção de uma interface gráfica de usuário (GUI, do inglês graphical use interface). Esse componente se relacionará diretamente com seu equivalente nas plataformas em que o aplicativo React estiver rodando (veja a tabela anterior). Em termos de organização do layout, ele pode ser utilizado de forma aninhada com outras views, podendo ainda ter como filhos elementos de qualquer tipo.
-
-Text
-Este componente é utilizado para a apresentação de textos. Ele suporta aninhamento, estilização e manuseio de toque.
-
-Image
-Assim como a tag HTML <img>, este componente permite a exibição de diferentes tipos de imagens com origens distintas — e aqui o destaque fica por conta da possibilidade de utilização até mesmo das imagens armazenadas no próprio dispositivo móvel. O Image herda as propriedades do componente View, além de possuir uma série de outros atributos.
-
-TextInput
-Este componente permite a entrada de textos por meio do teclado, provendo ainda uma série de funcionalidades, por exemplo, autocorreção, autocapitalização e utilização de diferentes tipos de teclado, assim como apenas do teclado numérico (digite algum texto no segundo input no exemplo).
-
-ScrollView
-Este componente também é um contêiner, sendo, a exemplo da View, utilizado para armazenar conteúdo — e outros elementos —, permitindo a interação na tela por meio de rolagem (scrolling). Logo, o ScrollView, para funcionar corretamente, precisa ter uma altura limitada/definida, já que sua serventia é justamente conter elementos filhos com altura ilimitada. Teste o código a seguir, modificando o tamanho do texto (aumentando-o e o diminuindo) a fim de visualizar, na prática, como tal componente se comporta:
-
-*/
