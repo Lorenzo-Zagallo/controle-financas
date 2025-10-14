@@ -3,7 +3,7 @@ import {
 	View, StyleSheet, Text, TextInput, Image,
 	StatusBar, ScrollView, Button, Modal, ActivityIndicator
 } from 'react-native';
-import { SafeAreaView } from "react-native-web";
+import { FlatList, SafeAreaView } from "react-native-web";
 
 // Text
 const TextoAninhado = () => {
@@ -62,25 +62,23 @@ const MeuTextoInput = () => {
 // ScrollView
 const Lista = () => {
 	return (
-		<SafeAreaView style={styles.safeContainer}>
-			<ScrollView style={styles.containerScrollView}>
-				<Text style={styles.text}>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-					Pellentesque id dui sed nulla imperdiet scelerisque.
-					Integer malesuada facilisis nibh varius eleifend.
-					Cras a velit laoreet dui interdum consectetur.
-					Pellentesque volutpat placerat mauris in interdum.
-					Pellentesque non egestas sem. Suspendisse malesuada at augue
-					sit amet pretium.
-					Praesent odio nisl, semper vitae purus a, elementum ultrices arcu.
-					Praesent blandit lectus et aliquet posuere.
-					Nulla dictum, nisi id feugiat suscipit, mi sem maximus turpis,
-					vel aliquet massa ex sit amet sem.
-					Sed ullamcorper enim non elit vestibulum, feugiat euismod elit
-					consectetur. In et pulvinar eros.
-				</Text>
-			</ScrollView>
-		</SafeAreaView>
+		<View style={[styles.containerScrollView, styles.listaContent]}>
+			<Text style={styles.text}>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+				Pellentesque id dui sed nulla imperdiet scelerisque.
+				Integer malesuada facilisis nibh varius eleifend.
+				Cras a velit laoreet dui interdum consectetur.
+				Pellentesque volutpat placerat mauris in interdum.
+				Pellentesque non egestas sem. Suspendisse malesuada at augue
+				sit amet pretium.
+				Praesent odio nisl, semper vitae purus a, elementum ultrices arcu.
+				Praesent blandit lectus et aliquet posuere.
+				Nulla dictum, nisi id feugiat suscipit, mi sem maximus turpis,
+				vel aliquet massa ex sit amet sem.
+				Sed ullamcorper enim non elit vestibulum, feugiat euismod elit
+				consectetur. In et pulvinar eros.
+			</Text>
+		</View>
 	);
 };
 
@@ -211,6 +209,23 @@ const Soma = () => {
 // 		}
 // }
 
+// Dados que representam os componentes
+const COMPONENTES = [
+	{ id: '1', component: Imagem },
+	{ id: '2', component: TextoAninhado },
+	{ id: '3', component: MeuTextoInput },
+	{ id: '4', component: Lista },
+	{ id: '5', component: Soma },
+	// Adicionar um item especial para o botão do Modal
+	{ id: '6', component: 'MODAL_BUTTON' },
+];
+{/* <TextoAninhado />
+	<Imagem />
+	<MeuTextoInput />
+	<Lista />
+	<Soma /> */}
+
+
 // View
 const Main = () => {
 
@@ -222,16 +237,39 @@ const Main = () => {
 		setIsModalVisible(!isModalVisible);
 	};
 
+	// renderiza cada item do array como um componente
+	const renderizarItem = ({ item }) => {
+		if (item.component === 'MODAL_BUTTON') {
+			return (
+				<View style={{ marginVertical: 10, width: '80%', alignSelf: 'center' }}>
+					<Button title="Abrir Modal" onPress={toggleModal} color="#841584" />
+				</View>
+			);
+		}
+
+		const ComponentToRender = item.component;
+		return (
+			// renderiza o componente real. adicione um view ou estilo se necessário
+			<View style={{ width: '100%', alignItems: 'center' }}>
+				<ComponentToRender />
+			</View>
+		);
+	};
+
 	return (
 		<View style={styles.container}>
-			<TextoAninhado />
-			<Imagem />
-			<MeuTextoInput />
-			<Lista />
-			<Soma />
+			<FlatList
+				data={COMPONENTES} // O array de componentes
+				renderItem={renderizarItem} // Função que renderiza cada item (componente)
+				keyExtractor={item => item.id} // Chave única para cada item
+				// Adiciona espaçamento entre os itens e um cabeçalho
+				ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+				// Cabeçalho e rodapé da lista
+				ListHeaderComponent={<Text style={styles.header}>Meu Aplicativo React Native</Text>}
+			/>
 
 			{/* Botão para abrir o modal */}
-			<Button title="Abrir Modal" onPress={() => setIsModalVisible(true)} color="#841584" />
+			{/* <Button title="Abrir Modal" onPress={() => setIsModalVisible(true)} color="#841584" /> */}
 
 			{/* Modal */}
 			<Modal animationType="slide"
@@ -259,34 +297,59 @@ export default Main;
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20,
+		flex: 1, // Essencial para Flatlist
+		padding: 20,
+		// justifyContent e alignItems não é necessário pois o FlatList os gerencia
+	},
+	header: {
+		fontSize: 24,
+		fontWeight: 'bold',
+		textAlign: 'center',
+		marginVertical: 15,
 	},
 	baseText: {
-		fontSize: 18, margin: 10, color: 'black',
+		fontSize: 18,
+		margin: 10,
+		color: 'black',
 	},
 	titulo: {
-		fontSize: 20, fontWeight: 'bold', color: 'blue',
+		fontSize: 20,
+		fontWeight: 'bold',
+		color: 'blue',
 	},
 	meuTextInput: {
-		height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10, width: '100%',
+		height: 40,
+		borderColor: 'gray',
+		borderWidth: 1,
+		marginBottom: 10,
+		paddingLeft: 10,
+		width: '100%',
 	},
 	valueText: {
-		fontSize: 16, marginTop: 10, color: 'green',
+		fontSize: 16,
+		marginTop: 10,
+		color: 'green',
 	},
 	imagem: {
-		margin: 10, width: 50, height: 50, alignSelf: 'center'
+		margin: 10,
+		width: 50,
+		height: 50,
+		alignSelf: 'center'
 	},
 	safeContainer: {
-		flex: 1, paddingTop: StatusBar.currentHeight,
+		flex: 1,
+		paddingTop: StatusBar.currentHeight,
 	},
 	containerScrollView: {
-		backgroundColor: 'grey', marginHorizontal: 20,
+		backgroundColor: 'grey',
+		marginHorizontal: 20,
 	},
 	text: {
 		fontSize: 26,
 	},
 	entrada: {
-		height: 40, borderWidth: 1,
+		height: 40,
+		borderWidth: 1,
 	},
 	texto: {
 		fontFamily: "Verdana", fontSize: 24,
