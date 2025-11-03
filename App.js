@@ -14,7 +14,7 @@ const AppContent = () => {
 	if (isLoading) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="large" color="007bff" />
+				<ActivityIndicator size="large" color="#007bff" />
 			</View>
 		);
 	}
@@ -26,13 +26,20 @@ const AppContent = () => {
 export default function App() {
 	return (
 		<NavigationContainer>
-			{/** envolve TUDO no provider */}
 			<FinanceProvider>
-				<TabNavigation /> {/** aqui a navegação por abas será renderizada */}
+				<AppContent />
 			</FinanceProvider>
 		</NavigationContainer>
 	);
 }
+
+
+// // envolve TUDO no provider
+// <FinanceProvider>
+// 	// <TabNavigation />  // aqui a navegação por abas será renderizada
+// 	<AppContent />
+// </FinanceProvider> 
+
 
 const styles = StyleSheet.create({
 	loadingContainer: {

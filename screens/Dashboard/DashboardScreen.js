@@ -1,7 +1,6 @@
 import React from "react";
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, FlatList } from 'react-native';
 import { useFinance } from '../../context/FinanceContext'; // importa o Hook
-import { FlatList } from "react-native-web";
 
 const DashboardScreen = () => {
     // chama o Hook para pegar as categorias e outros dados
@@ -10,13 +9,13 @@ const DashboardScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Página Inicial (Dashboard)</Text>
-            <Text>Aqui você verá o saldo total e um resumo dos gastos do mês.</Text>
+            <Text style={styles.subtitle}>Aqui você verá o saldo total e um resumo dos gastos do mês.</Text>
 
             {isLoading ? (
                 <Text>Carregando dados...</Text>
             ) : (
                 <>
-                    <Text style={styles.subtitle}>Categorias Carregadas ({categories.length}):</Text>
+                    <Text style={styles.titleCategories}>Categorias Carregadas ({categories.length}):</Text>
                     <FlatList 
                         data={categories}
                         keyExtractor={item => item.id}
@@ -44,11 +43,22 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
+        textAlign: 'center',
+        width: '100%',
     },
     subtitle: {
         fontSize: 20,
         marginTop: 20,
-        fontWeight: '600',
+        textAlign: 'center',
+        width: '100%',
+        color: '#555',
+    },
+    titleCategories: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginTop: 30,
+        textAlign: 'center',
+        width: '100%',
     }
 });
 
