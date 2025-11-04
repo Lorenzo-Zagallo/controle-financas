@@ -2,7 +2,10 @@
 
 ## 🎯 Sobre o Projeto
 
-**FinTrack** (Finance Tracker) é um aplicativo mobile desenvolvido em **React Native + Expo** com o objetivo de auxiliar o usuário na gestão completa de suas finanças pessoais. Este projeto foi criado para a disciplina de **Desenvolvimento em Dispositivos Mobile Android** , demonstrando proficiência no uso de tecnologias híbridas para a criação de soluções robustas.
+**FinTrack** é um aplicativo mobile de controle financeiro desenvolvido em **React Native + Expo** para o ambiente Android. O objetivo é fornecer uma ferramenta completa para a gestão de suas finanças pessoais (receitas e despesas), utilizando o **React Context API** para gerenciar o estado global da aplicação e o **AsyncStorage** para persistência de dados. 
+
+Este projeto foi criado para a disciplina de **Desenvolvimento em Dispositivos Mobile Android** , demonstrando proficiência no uso de tecnologias híbridas para a criação de soluções robustas.
+
 
 ### Funcionalidades Essenciais
 
@@ -12,7 +15,7 @@ O aplicativo visa cobrir as seguintes áreas:
 2.  **Categorização:** Associar transações a categorias personalizáveis (Ex: Alimentação, Transporte, Lazer, Salário).
 3.  **Gestão de Orçamento:** Criação de orçamentos mensais para categorias específicas, com acompanhamento em tempo real.
 4.  **Visualização de Dados:** Geração de gráficos e relatórios (Gráficos de Pizza/Barra) que mostram a distribuição dos gastos e o saldo.
-5.  **Persistência de Dados:** Uso de um banco de dados local para armazenar todas as informações financeiras.
+5.  **Persistência de Dados:** Utiliza **AsyncStorage** como um banco de dados local para armazenar todas as informações financeiras.
 
 ---
 
@@ -22,10 +25,11 @@ O aplicativo visa cobrir as seguintes áreas:
 | :--- | :--- | :--- |
 | **Framework Mobile** | React Native (com Expo) | Permite criar aplicativos nativos para Android (e iOS) usando JavaScript. |
 | **Linguagem** | JavaScript (ES6+) | Padrão do React Native. |
-| **Navegação** | React Navigation | Gerencia o fluxo entre as telas (Tabs, Stack). |
-| **Gerenciamento de Estado** | React Context API / Zustand | Para gerenciar o estado global da aplicação (transações, orçamentos, saldo). |
-| **Persistência de Dados** | Expo-SQLite (ou AsyncStorage) | Armazenamento persistente e estruturado de dados (transações, categorias). |
-| **Visualização** | React Native Chart Kit | Geração de gráficos para relatórios visuais. |
+| **Navegação** | React Navigation | Gerencia o fluxo entre as telas e a abertura de formulários (Tabs, Stack). |
+| **Gerenciamento de Estado** | React Context API | Usado para centralizar e fornecer o estado global da aplicação (transações, orçamentos, saldo). |
+| **Persistência de Dados** | AsyncStorage | Utilizado para armazenamento persistente e assíncrono de dados leves (transações, categorias). |
+| **Visualização** | *indefinido* | Geração de gráficos para relatórios visuais. |
+| **Componentes de UI** | `@react-native-picker/picker`, `react-native-gesture-handler` (Pressable) | Componentes essenciais para formulários e interação mobile. |
 
 ---
 
@@ -46,45 +50,43 @@ Certifique-se de ter os seguintes softwares instalados:
 1.  **Clone o Repositório:**
     ```bash
     git clone [LINK DO SEU REPOSITÓRIO]
-    cd fint-rack
+    cd controle-financas
     ```
 
 2.  **Instale as Dependências:**
     ```bash
     npm install
-    # ou yarn install
+    # Execute também para garantir a compatibilidade das dependências:
+    expo install @react-native-picker/picker react-native-screens react-native-safe-area-context @react-navigation/native @react-navigation/bottom-tabs @react-navigation/stack
     ```
 
 3.  **Inicie o Servidor de Desenvolvimento:**
     ```bash
-    npm start
-    # ou expo start
+    npm start -- --clear
+    # ou expo start -c
     ```
-
-    Ao executar este comando, um QR Code será exibido no seu terminal e/ou no seu navegador.
 
 4.  **Execute no Dispositivo/Emulador Android:**
 
-    * **No Celular Android:** Abra o aplicativo **Expo Go** e escaneie o QR Code exibido. O aplicativo será carregado automaticamente.
-    * **No Emulador Android:** Se você tiver o Android Studio configurado, pressione a letra `a` no terminal onde o Expo está rodando.
+    * **No Celular Android:** Abra o aplicativo **Expo Go** e escaneie o QR Code exibido.
+    * **No Emulador Android:** Pressione a letra `a` no terminal onde o Expo está rodando.
 
 ---
 
-## 📂 Estrutura de Pastas (Sugestão Inicial)
+## 📂 Estrutura de Pastas
 
 ```
 .
-├── assets/         # Ícones, fontes e imagens estáticas 
-├── components/     # Elementos de UI reutilizáveis (Card, Botão, Input) 
-├── screens/        # Componentes que representam telas inteiras 
-│ ├── Dashboard/ 
-│ ├── Transactions/ 
-│ ├── Budgets/ 
-│ └── Reports/ 
-├── context/        # Lógica para gerenciamento de estado global (Ex: FinanceContext) 
-├── data/           # Funções de acesso ao banco de dados (AsyncStorage) 
-├── navigation/     # Configuração da navegação (Tabs, Stacks) 
-└── App.js          # Ponto de entrada principal
+├── assets/             # Ícones, fontes e imagens estáticas 
+├── components/         # Elementos de UI reutilizáveis (Ainda não implementado) 
+├── context/            # Lógica para gerenciamento de estado global (FinanceContext.js) 
+├── navigation/         # Configuração da navegação (TabNavigation.js, TransactionStack.js, BudgetStack.js) 
+├── screens/            # Telas principais e formulários
+│   ├── Dashboard/ 
+│   ├── Transactions/   # Transações, Adicionar Transação
+│   ├── Budgets/        # Orçamentos, Adicionar Categoria
+│   └── Reports/        
+└── App.js              # Ponto de entrada principal
 ```
 
 ---

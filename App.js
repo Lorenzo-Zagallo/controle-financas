@@ -4,14 +4,14 @@ import TabNavigation from "./navigation/TabNavigation";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 
 // importa o Provider e o Hook
-import { FinanceProvider, useFinance } from "./context/FinanceContext";
+import { ProvedorFinancas, useFinancas } from "./context/FinanceContext";
 
 // componente que renderiza a navegação APENAS DEPOIS de carregar os dados
 const AppContent = () => {
-	const { isLoading } = useFinance();
+	const { carregando } = useFinancas();
 
 	// enquanto os dados estiverem sendo carregados, mostra um indicador de loading
-	if (isLoading) {
+	if (carregando) {
 		return (
 			<View style={styles.loadingContainer}>
 				<ActivityIndicator size="large" color="#007bff" />
@@ -26,20 +26,12 @@ const AppContent = () => {
 export default function App() {
 	return (
 		<NavigationContainer>
-			<FinanceProvider>
+			<ProvedorFinancas>
 				<AppContent />
-			</FinanceProvider>
+			</ProvedorFinancas>
 		</NavigationContainer>
 	);
 }
-
-
-// // envolve TUDO no provider
-// <FinanceProvider>
-// 	// <TabNavigation />  // aqui a navegação por abas será renderizada
-// 	<AppContent />
-// </FinanceProvider> 
-
 
 const styles = StyleSheet.create({
 	loadingContainer: {
