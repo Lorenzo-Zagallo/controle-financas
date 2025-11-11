@@ -4,7 +4,7 @@ import TabNavigation from "./navigation/TabNavigation";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 
 // importa o Provider e o Hook
-import { ProvedorFinancas, useFinancas } from "./context/FinanceContext";
+import { ProvedorFinancas, useFinancas } from "./context/ContextoFinancas";
 
 // componente que renderiza a navegação APENAS DEPOIS de carregar os dados
 const AppContent = () => {

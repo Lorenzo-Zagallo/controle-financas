@@ -1,11 +1,30 @@
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
-import { useFinancas } from "../../context/FinanceContext";
+import { useFinancas } from "../../context/ContextoFinancas";
 import { Ionicons } from '@expo/vector-icons';
 
-const TransactionsScreen = ({ navigation }) => {
+// nome dos meses para exibição
+const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+const TelaTransacao = ({ navigation }) => {
 
     // pega as transações e categorias do contexto
     const { transacoes, categorias } = useFinancas(); // hook para acessar transações e categorias
+
+    const hoje = new Date();
+    const [mesFiltro, setMesFiltro] = useState(hoje.getMonth() + 1); // mês atual (1-12)
+    const [anoFiltro, setAnoFiltro] = useState(hoje.getFullYear()); // ano atual
+
+    const transacoesFiltradas = transacoes.filter(item => {
+        const data = new Date(item.data);
+        return data.getMonth() + 1 === mesFiltro && data.getFullYear() === anoFiltro;
+    });
+
+    // função utilizatária para formatar a data
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`
+    }
 
     // função utilitária para encontrar o nome da categoria pelo ID
     const getCategoryName = (categoryId) => {
@@ -15,7 +34,7 @@ const TransactionsScreen = ({ navigation }) => {
 
     // função para navegar para a tela de adicionar transação
     const handleNavigateToAddTransaction = () => {
-        navigation.navigate('AddTransaction');
+        navigation.navigate('AdicionarTransacao');
     }
 
     // renderiza cada item da lista de transações
@@ -29,26 +48,57 @@ const TransactionsScreen = ({ navigation }) => {
                     <Text style={styles.descriptionText}>{item.descricao}</Text>
                     <Text style={styles.categoryText}>{getCategoryName(item.categoriaId)}</Text>
                 </View>
-                <Text style={[styles.amountText, { color: itemColor }]}>
-                    {isExpense ? '- ' : '+ '}
-                    R$ {item.valor.toFixed(2).replace('.', ',')}
-                </Text>
+                <View>
+                    <Text style={[styles.amountText, { color: itemColor }]}>
+                        {isExpense ? '- ' : '+ '}
+                        R$ {item.valor.toFixed(2).replace('.', ',')}
+                    </Text>
+                    <Text>{item.data}</Text>
+                </View>
             </View>
         );
     };
 
+    // função para alterar o filtro (para fins ded demonstração, muda apenas o mês)
+    const alterarMesFiltro = (passo) => {
+        let novoMes = mesFiltro + passo;
+        let novoAno = anoFiltro;
+
+        if (novoMes < 1) {
+            novoMes = 12;
+            novoAno -= 1;
+        } else if (novoMes > 12) {
+            novoMes = 1;
+            novoAno += 1;
+        }
+        setMesFiltro(novoMes);
+        setAnoFiltro(novoAno);
+    }
+
     return (
         <View style={styles.container}>
-            <View style={{ padding: 20 }}>
+            {/* <View style={{ padding: 20 }}>
                 <Text style={styles.title}>Tela de Transações (Transactions)</Text>
                 <Text style={styles.subtitle}>Aqui você poderá ver suas transações financeiras.</Text>
+            </View> */}
+
+            <View style={styles.filterControl}>
+                <Pressable onPress={() => alterarMesFiltro(-1)}>
+                    <Ionicons name="chevron-back" size={24} color="#007bff" />
+                </Pressable>
+                <Text style={styles.filterText}>
+                    {nomesMeses[mesFiltro - 1]} de {anoFiltro}
+                </Text>
+                <Pressable onPress={() => alterarMesFiltro(1)}>
+                    <Ionicons name="chevron-forward" size={24} color="#007bff" />
+                </Pressable>
             </View>
-            
+
             <Text style={styles.title}>Minhas Transações ({transacoes.length})</Text>
 
-            {transacoes.length > 0 ? (
+            {transacoesFiltradas.length > 0 ? (
                 <FlatList
-                    data={transacoes}
+                    data={transacoesFiltradas}
                     keyExtractor={item => item.id}
                     renderItem={renderItem}
                     contentContainerStyle={{ paddingBottom: 80 }}
@@ -57,8 +107,8 @@ const TransactionsScreen = ({ navigation }) => {
             ) : (
                 <View style={styles.emptyContainer}>
                     <Ionicons name="cash-outline" size={80} color="gray" />
-                    <Text style={styles.emptyText}>Você ainda não tem transações registradas.</Text>
-                    <Text style={styles.emptyTextHint}>Clique no '+' para começar.</Text>
+                    <Text style={styles.emptyText}>Nenhuma transação registrada em {nomesMeses[mesFiltro - 1]}.</Text>
+                    <Text style={styles.emptyTextHint}>Mude o mês ou adicione um novo registro.</Text>
                 </View>
             )}
 
@@ -76,6 +126,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
+        marginTop: 10,
         fontWeight: 'bold',
         textAlign: 'center',
         width: '100%',
@@ -152,7 +203,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
-    }
+    },
+
+    // estilos para data
+    filterControl: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+    },
+    filterText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
 });
 
-export default TransactionsScreen;
+export default TelaTransacao;

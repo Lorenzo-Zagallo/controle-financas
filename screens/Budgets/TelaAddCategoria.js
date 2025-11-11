@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Pressable } from 'react-native';
-import { useFinancas } from '../../context/FinanceContext';
+import { useFinancas } from '../../context/ContextoFinancas';
 import { Ionicons } from '@expo/vector-icons';
 
 const SeletorDeCor = ({ corSelecionada, selecionar }) => {

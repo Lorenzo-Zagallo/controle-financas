@@ -1,16 +1,15 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-// Importa as telas
-import BudgetsScreen from '../screens/Budgets/BudgetsScreen';
-import AddCategoryScreen from '../screens/Budgets/AddCategoryScreen';
+import TelaOrcamento from '../screens/Budgets/TelaOrcamento';
+import TelaAddCategoria from '../screens/Budgets/TelaAddCategoria';
 
 const Stack = createStackNavigator();
 
-const BudgetStack = () => {
+const StackOrcamento = () => {
     return (
         <Stack.Navigator
-            initialRouteName="BudgetsOverview"
+            initialRouteName="OrçamentoVisaoGeral"
             screenOptions={{
                 headerStyle: { backgroundColor: '#007bff' },
                 headerTintColor: '#fff',
@@ -18,17 +17,17 @@ const BudgetStack = () => {
             }}
         >
             <Stack.Screen
-                name="BudgetsOverview"
-                component={BudgetsScreen}
+                name="OrçamentoVisaoGeral"
+                component={TelaOrcamento}
                 options={{ title: 'Meus Orçamentos' }}
             />
             <Stack.Screen
-                name="AddCategory"
-                component={AddCategoryScreen}
+                name="AdicionarCategoria"
+                component={TelaAddCategoria}
                 options={{ title: 'Adicionar Categoria' }}
             />
         </Stack.Navigator>
     );
 };
 
-export default BudgetStack;
+export default StackOrcamento;

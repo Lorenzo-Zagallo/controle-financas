@@ -1,28 +1,28 @@
 import { createStackNavigator } from '@react-navigation/stack';
 
-import TransactionsScreen from '../screens/Transactions/TransactionsScreen';
-import AddTransactionScreen from '../screens/Transactions/AddTransactionScreen';
+import TelaAddTransacao from '../screens/Transactions/TelaAddTransacao';
+import TelaTransacao from '../screens/Transactions/TelaTransacao';
 
 const Stack = createStackNavigator();
 
-const TransactionStack = () => {
+const StackTransacao = () => {
     return (
-        <Stack.Navigator initialRouteName="TransactionsOverview"
+        <Stack.Navigator initialRouteName="TransacaoVisaoGeral"
             screenOptions={{
                 headerStyle: { backgroundColor: '#007bff' },
                 headerTintColor: '#fff',
                 headerTitleStyle: { fontWeight: 'bold' },
             }}>
             <Stack.Screen
-                name="TransactionsOverview"
-                component={TransactionsScreen}
+                name="TransacaoVisaoGeral"
+                component={TelaTransacao}
                 options={{ title: 'Minhas Transações' }} />
             <Stack.Screen
-                name="AddTransaction"
-                component={AddTransactionScreen}
+                name="AdicionarTransacao"
+                component={TelaAddTransacao}
                 options={{ title: 'Nova Transação' }} />
         </Stack.Navigator>
     );
 };
 
-export default TransactionStack;
+export default StackTransacao;
