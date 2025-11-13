@@ -189,7 +189,100 @@ export const ProvedorFinancas = ({ children }) => {
     };
 
 
-    // --- FUNÇÕES DE SALVAMENTO DE DADOS (AsyncStorage) ---
+    // --- FUNÇÕES DE EDIÇÃO E DELEÇÃO (CRUD) ---
+
+    /**
+     * Deleta uma transação específica.
+     * @param {string} idParaEditar - O ID da transação a ser modificada.
+     * @param {object} dadosAtualizados - O objeto com os novos dados da transação
+     */
+    const editarTransacao = async (idParaEditar, dadosAtualizados) => {
+        // LÓGICA COMPLEXTA (MAP): Cria um novo array.
+        // Itera por todas as transações, se o ID bater, retorna o item antigo
+        // mesclado com os novos dados (`...t, ...dadosAtualizados`).
+        const transacoesAtualizadas = transacoes.map(t => {
+            if (t.id === idParaEditar) {
+                return { ...t, ...dadosAtualizados};
+            }
+            return t;
+        });
+
+        // Reordena por data, pois a data pode ter sido editada
+        transacoesAtualizadas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        setTransacoes(transacoesAtualizadas);
+        await AsyncStorage.setItem('@finance_app_transactions', JSON.stringify(transacoesAtualizadas));
+    };
+
+    /**
+     * Deleta uma transação específica.
+     * @param {string} idParaDeletar - O ID da transação a ser removida.
+     */
+    const deletarTransacao = async (idParaDeletar) => {
+        // LÓGICA COMPLEXTA (FILTER): Cria um novo array contendo apenas
+        // os itens cujo ID é DIFERENTE do ID a ser deletado.
+        const transacoesAtualizadas = transacoes.filter(t => t.id !== idParaDeletar);
+
+        setTransacoes(transacoesAtualizadas);
+        await AsyncStorage.setItem('@finance_app_transactions', JSON.stringify(transacoesAtualizadas));
+    };
+    
+
+    /**
+     * Editar uma categoria existente.
+     * @param {string} idParaEditar  - O ID da categoria
+     * @param {object} dadosAtualizados - O objeto com os novos dados (ex: { nome, cor, tipo }).
+     */
+    const editarCategoria = async (idParaEditar, dadosAtualizados) => {
+        const categoriasAtualizadas = categorias.map(cat => {
+            if (cat.id === idParaEditar) {
+                return { ...cat, ...dadosAtualizados };
+            }
+            return cat;
+        });
+        setCategorias(categoriasAtualizadas);
+        await AsyncStorage.setItem('@finance_app_categories', JSON.stringify(categoriasAtualizadas));
+    };
+
+
+    /**
+     * LÓGICA COMPLEXA: DELEÇÃO EM CASCATA
+     * Deleta uma categoria E TODOS os orçamentos e transações associados a ela.
+     * @param {string} idParaDeletar - O ID da categoria a ser removida.
+     */
+    const deletarCategoria = async (idParaDeletar) => {
+        // 1. Deleta a Categoria
+        const categoriasAtualizadas = categorias.filter(cat => cat.id !== idParaDeletar);
+
+        // 2. Deleta as Transações associadas
+        const transacoesAtualizadas = transacoes.filter(t => t.categoriaId !== idParaDeletar);
+
+        // 3. Deleta o Orçamento (Meta) associado
+        const orcamentosAtualizados = { ...orcamentos };
+        delete orcamentosAtualizados[idParaDeletar]; // remove a chave do objeto
+
+        // 4. Atualiza todos os estado
+        setCategorias(categoriasAtualizadas);
+        setTransacoes(transacoesAtualizadas);
+        setOrcamentos(orcamentosAtualizados);
+
+        // 5. Salva todas as mudanças no AsyncStorage
+        await AsyncStorage.setItem('@finance_app_categories', JSON.stringify(categoriasAtualizadas));
+        await AsyncStorage.setItem('@finance_app_transactions', JSON.stringify(transacoesAtualizadas));
+        await AsyncStorage.setItem('@finance_app_budgets', JSON.stringify(orcamentosAtualizados));
+    }
+
+    /**
+     * Deleta/Reseta uma meta de orçamento (remove a chave do mapa).
+     * @param {string} categoriaId - O ID da categoria do orçamento a ser removido.
+     */
+    const deletarOrcamento = async (categoriaId) => {
+        const orcamentosAtualizados = { ...orcamentos};
+        delete orcamentosAtualizados[categoriaId];; // remove a chave
+
+        setOrcamentos(orcamentosAtualizados);
+        await AsyncStorage.setItem('@finance_app_budgets', JSON.stringify(orcamentosAtualizados));
+    };
 
 
     // --- CÁLCULOS MEMORIZADOS (useMemo) ---
@@ -338,8 +431,13 @@ export const ProvedorFinancas = ({ children }) => {
         orcamentos, // Adiciona os orçamentos ao contexto
         carregando, // Estado de carregamento
         salvarNovaCategoria, // Função para salvar nova categoria
+        editarCategoria, // Função para editar uma categoria existente
+        deletarCategoria, // Função para deletar uma categoria existente
         salvarNovaTransacao, // Função para salvar nova transação
+        editarTransacao, // Função para editar uma transação existente
+        deletarTransacao, // Função para deletar uma transação existente
         salvarOrcamento, // Função para salvar/atualizar orçamentos
+        deletarOrcamento, // Função para deletar um orçamento existente
         saldoTotal, // Saldo total calculado
         receitaTotal, // Receita total calculada
         despesaTotal, // Despesa total calculada

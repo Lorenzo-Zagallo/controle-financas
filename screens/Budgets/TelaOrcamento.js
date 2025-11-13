@@ -155,30 +155,6 @@ const BudgetsScreen = ({ navigation }) => {
     // --- RENDERIZAÇÃO DA TELA ---
     return (
         <View style={styles.containerPrincipal}>
-            {/* <View style={{ padding: 20 }}>
-                <Text style={styles.title}>Tela de Orçamentos (Budgets)</Text>
-                <Text style={styles.subtitle}>Aqui você poderá gerenciar seus orçamentos mensais.</Text>
-            </View>
-
-            <View style={{ padding: 20 }}>
-                <Text style={styles.title}>Minhas Categorias ({categorias.length})</Text>
-            </View>
-
-
-            <FlatList
-                data={categorias}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                    <View style={styles.categoryItem}>
-                        <View style={[styles.colorIndicator, { backgroundColor: item.cor }]} />
-                        <Text style={styles.categoryName}>{item.nome}</Text>
-                        <Text style={[styles.categoryType, item.tipo === 'income' ? styles.income : styles.expense]}>
-                            {item.tipo === 'income' ? 'Receita' : 'Despesa'}
-                        </Text>
-                    </View>
-                )}
-                style={styles.list}
-            /> */}
 
             {/* Título Principal */}
             <View style={styles.containerCabecalho}>

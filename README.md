@@ -11,11 +11,12 @@ Este projeto foi criado para a disciplina de **Desenvolvimento em Dispositivos M
 
 O aplicativo visa cobrir as seguintes áreas:
 
-1.  **Registro de Transações:** Adicionar e editar receitas e despesas com data, valor e descrição.
-2.  **Categorização:** Associar transações a categorias personalizáveis (Ex: Alimentação, Transporte, Lazer, Salário).
-3.  **Gestão de Orçamento:** Criação de orçamentos mensais para categorias específicas, com acompanhamento em tempo real.
-4.  **Visualização de Dados:** Geração de gráficos e relatórios (Gráficos de Pizza/Barra) que mostram a distribuição dos gastos e o saldo.
-5.  **Persistência de Dados:** Utiliza **AsyncStorage** como um banco de dados local para armazenar todas as informações financeiras.
+1.  **CRUD de Transações:**  Adicionar, listar (com filtro de mês), editar e excluir receitas e despesas.
+2.  **CRUD de Categorias:** Adicionar e listar categorias (a edição/exclusão está no contexto, mas ainda não implementada na UI).
+3.  **Gestão de Orçamento:** Definir um limite (meta) de gasto por categoria e acompanhar o progresso com uma barra visual.
+4.  **Dashboard (Visão Geral):** Exibe o saldo total, receita total e despesa total.
+5.  **Relatórios (Gráficos):** Exibe gráficos de pizza mostrando a distribuição de receitas e despesas do mês.
+6.  **Persistência de Dados:** Utiliza **AsyncStorage** para salvar todas as transações, categorias e metas de orçamento.
 
 ---
 
@@ -25,11 +26,11 @@ O aplicativo visa cobrir as seguintes áreas:
 | :--- | :--- | :--- |
 | **Framework Mobile** | React Native (com Expo) | Permite criar aplicativos nativos para Android (e iOS) usando JavaScript. |
 | **Linguagem** | JavaScript (ES6+) | Padrão do React Native. |
-| **Navegação** | React Navigation | Gerencia o fluxo entre as telas e a abertura de formulários (Tabs, Stack). |
-| **Gerenciamento de Estado** | React Context API | Usado para centralizar e fornecer o estado global da aplicação (transações, orçamentos, saldo). |
-| **Persistência de Dados** | AsyncStorage | Utilizado para armazenamento persistente e assíncrono de dados leves (transações, categorias). |
-| **Visualização** | *indefinido* | Geração de gráficos para relatórios visuais. |
-| **Componentes de UI** | `@react-native-picker/picker`, `react-native-gesture-handler` (Pressable) | Componentes essenciais para formulários e interação mobile. |
+| **Navegação** | React Navigation (Tabs & Stack) | Gerencia o fluxo entre as telas (principal e adicionar). |
+| **Gerenciamento de Estado** | React Context API | Usado para centralizar e fornecer o estado global (transações, categorias, orçamentos) e as funções de CRUD. |
+| **Persistência de Dados** | AsyncStorage | Utilizado para armazenamento persistente e assíncrono de todos os dados do usuário. |
+| **Visualização** | `react-native-pie-chart` | Biblioteca leve e simples para criar os gráficos de pizza. |
+| **Componentes de UI** | `@react-native-picker/picker` | Componente nativo para seleção de categorias nos formulários. |
 
 ---
 
@@ -56,14 +57,11 @@ Certifique-se de ter os seguintes softwares instalados:
 2.  **Instale as Dependências:**
     ```bash
     npm install
-    # Execute também para garantir a compatibilidade das dependências:
-    expo install @react-native-picker/picker react-native-screens react-native-safe-area-context @react-navigation/native @react-navigation/bottom-tabs @react-navigation/stack
     ```
 
 3.  **Inicie o Servidor de Desenvolvimento:**
     ```bash
-    npm start -- --clear
-    # ou expo start -c
+    npm start -c
     ```
 
 4.  **Execute no Dispositivo/Emulador Android:**
@@ -79,13 +77,13 @@ Certifique-se de ter os seguintes softwares instalados:
 .
 ├── assets/             # Ícones, fontes e imagens estáticas 
 ├── components/         # Elementos de UI reutilizáveis (Ainda não implementado) 
-├── context/            # Lógica para gerenciamento de estado global (FinanceContext.js) 
-├── navigation/         # Configuração da navegação (TabNavigation.js, TransactionStack.js, BudgetStack.js) 
+├── context/            # Lógica para gerenciamento de estado global 
+├── navigation/         # Configuração da navegação 
 ├── screens/            # Telas principais e formulários
-│   ├── Dashboard/ 
-│   ├── Transactions/   # Transações, Adicionar Transação
-│   ├── Budgets/        # Orçamentos, Adicionar Categoria
-│   └── Reports/        
+│   ├── Dashboard/      # Tela principal com informações essenciais
+│   ├── Transactions/   # Transações e Adicionar Transação
+│   ├── Budgets/        # Orçamentos e Adicionar Categoria
+│   └── Reports/        # Gráficos de Receitas e Despesas
 └── App.js              # Ponto de entrada principal
 ```
 
