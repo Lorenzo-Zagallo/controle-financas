@@ -14,7 +14,7 @@ const dataPadrao = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMon
 const validarFormatoData = (dataString) => {
     // regex para checar DD/MM/AAAA (ex: 07/11/2025)
     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-    if (!regex.text(dataString)) return false;
+    if (!regex.test(dataString)) return false;
 
     const partes = dataString.split('/');
     const dia = parseInt(partes[0], 10);
@@ -46,7 +46,7 @@ const TelaAddTransacao = ({ navigation }) => {
         let cleanText = text.replace(/[^0-9]/g, '');
 
         if (cleanText.length > 8) {
-            cleanText = cleanText.s.substring(0, 8);
+            cleanText = cleanText.substring(0, 8);
         } 
 
         let formattedText = '';
@@ -79,15 +79,15 @@ const TelaAddTransacao = ({ navigation }) => {
         const valorNumerico = parseFloat(valor.replace(',', '.'));
 
         if (!valorNumerico || valorNumerico <= 0) {
-            Alert.alert('Erro', 'O valor deve ser um número positivo.');
+            console.log('Erro', 'O valor deve ser um número positivo.');
             return;
         }
         if (!descricao.trim()) {
-            Alert.alert('Erro', 'A descrição não pode estar vazia.');
+            console.log('Erro', 'A descrição não pode estar vazia.');
             return;
         }
         if (!categoriaId) {
-            Alert.alert('Erro', 'Selecione uma categoria.');
+            console.log('Erro', 'Selecione uma categoria.');
             return;
         }
 

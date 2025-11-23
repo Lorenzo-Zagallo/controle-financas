@@ -173,7 +173,7 @@ export const ProvedorFinancas = ({ children }) => {
         //e depois ATUALIZA A CHAVE DINÂMICA `[categoriaId]` com o novo `valor`
         const orcamentosAtualizados = {
             ...orcamentos,
-            [categoriaId]: valor
+            [categoriaId]: Number(valor) || 0
         }
 
         // 2. Atualiza o estado (UI)
@@ -424,6 +424,52 @@ export const ProvedorFinancas = ({ children }) => {
     }, [transacoes, categorias]);
 
 
+    // ... (dentro de ProvedorFinancas)
+
+    // 🚨 NOVO CÁLCULO: Evolução Financeira (Saldo por Mês)
+    const dadosEvolucaoFinanceira = useMemo(() => {
+        // Objeto para armazenar saldo por mês: { '2025-10': 500, '2025-11': 1200 }
+        const saldoPorMes = {};
+        
+        // Ordena transações da mais antiga para a mais nova
+        const transacoesOrdenadas = [...transacoes].sort((a, b) => new Date(a.data) - new Date(b.data));
+
+        transacoesOrdenadas.forEach(t => {
+            const data = new Date(t.data);
+            const chaveMes = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`; // "2025-11"
+            
+            if (!saldoPorMes[chaveMes]) {
+                saldoPorMes[chaveMes] = 0;
+            }
+            
+            if (t.tipo === 'income') saldoPorMes[chaveMes] += t.valor;
+            else saldoPorMes[chaveMes] -= t.valor;
+        });
+
+        // Transforma em arrays para o gráfico (últimos 6 meses)
+        const labels = Object.keys(saldoPorMes).slice(-6).map(chave => {
+            const [ano, mes] = chave.split('-');
+            return `${mes}/${ano.substring(2)}`; // Ex: "11/25"
+        });
+        
+        // Acumula o saldo ao longo do tempo (opcional, ou mostra o saldo DO mês)
+        // Aqui vamos mostrar o resultado líquido de CADA mês
+        const data = Object.values(saldoPorMes).slice(-6);
+
+        // Se não tiver dados suficientes, retorna dados fictícios/vazios para não quebrar o gráfico
+        if (labels.length === 0) {
+            return { labels: ["Sem dados"], datasets: [{ data: [0] }] };
+        }
+
+        return {
+            labels,
+            datasets: [{ data }]
+        };
+    }, [transacoes]);
+
+    // ... (Adicione 'dadosEvolucaoFinanceira' ao 'valorContexto')
+
+
     // 4. Objeto de valor que será "exportado" pelo Provedor
     const valorContexto = {
         categorias, // Adiciona as categorias ao contexto
@@ -444,6 +490,7 @@ export const ProvedorFinancas = ({ children }) => {
         dadosGraficoDespesas, // Dados do Gráfico de Despesa
         dadosGraficoReceitas, // Dados do Gráfico de Receitas
         gastosDoMesPorCategoria,
+        dadosEvolucaoFinanceira, // Dados do Gráfico de Evolução Financeira
     };
 
     return (

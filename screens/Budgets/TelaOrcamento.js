@@ -1,38 +1,27 @@
 import React, { useState } from "react";
-import {
-    View,
-    StyleSheet,
-    Text,
-    FlatList,
-    Pressable,
-    Modal,
-    TextInput,
-    Alert
-} from 'react-native';
+import { View, StyleSheet, Text, FlatList, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { useFinancas } from "../../context/ContextoFinancas";
 import { Ionicons } from '@expo/vector-icons';
 
 
-// --- COMPONENTES AUXILIARES ---
+// ===== COMPONENTES AUXILIARES (BarraProgresso e FormatarMoeda) =====
 
 /**
  * Componente simples para renderizar a Barra de Progresso.
  * @param {object} props 
- * @param {number} props.progresso - A porcentagem atual (0-100).
+ * @param {number} props.progresso - A porcentagem atual (0-100)
  */
 const BarraProgresso = ({ progresso }) => {
-    let corBarra = '#28a745'; // Verde (Padrão)
+    let corBarra = '#28a745';
 
     // LÓGICA DE MUDANÇA DE COR
-    // Muda a cor da barra baseado no quão perto está de atingir a meta
-    if (progresso > 75) corBarra = '#ffc107'; // Amarelo (Atenção)
-    if (progresso > 90) corBarra = '#dc3545'; // Vermelho (Perigo)
+    if (progresso > 75) corBarra = '#ffc107';
+    if (progresso > 90) corBarra = '#dc3545';
 
-    // Garante que a barra não ultrapasse 100% visualmente
+    // GARANTE QUE A BARRA NÃO ULTRAPASSE 100% VISUALMENTE
     const progressoLimitado = Math.min(progresso, 100);
 
     return (
-        // View externa (fundo cinza)
         <View style={styles.barraProgressoFundo}>
             <View style={[styles.barraProgressoPreenchimento,
             { width: `${progressoLimitado}%`, backgroundColor: corBarra }]} />
@@ -40,30 +29,32 @@ const BarraProgresso = ({ progresso }) => {
     );
 };
 
-// Função auxiliar para formatar valores monetários
-const formatarMoeda = (value) => `R$ ${value.toFixed(2).replace('.', ',')}`;
+// FUNÇÃO AUXILIAR PARA FORMATAR VALORES MONETÁRIOS
+const FormatarMoeda = (value) => `R$ ${value.toFixed(2).replace('.', ',')}`;
 
 
-// --- COMPONENTE PRINCIPAL DA TELA
+// ===============  COMPONENTE PRINCIPAL DA TELA =============== 
 
 const BudgetsScreen = ({ navigation }) => {
-    // --- HOOKS E ESTADOS ---
 
-    // Puxa os dados e as funções necessárias do Contexto Global
-    const { categorias, orcamentos, gastosDoMesPorCategoria, salvarOrcamento } = useFinancas(); // Usa o hook para acessar categorias
+    const { categorias, orcamentos, gastosDoMesPorCategoria, salvarOrcamento, deletarCategoria } = useFinancas();
 
-    // Estados locais para controlar o Modal de edição
+    // ESTADOS PARA O MODAL DE ORÇAMENTO
     const [modalVisivel, setModalVisivel] = useState(false);
-    const [categoriaAtual, setCategoriaAtual] = useState(null); // Guarda a categoria que está sendo editada
-    const [valorMetaInput, setValorMetaInput] = useState(''); // Guarda o texto do input no modal
+    const [categoriaAtual, setCategoriaAtual] = useState(null); // GUARDA A CATEGORIA QUE SENDO EDITADA
+    const [valorMetaInput, setValorMetaInput] = useState(''); // GUARDA O TEXTO DO INPUT NO MODAL
+
+    // CONTROLA O MENU DE EDIÇÃO/EXCLUSÃO DA CATEGORIA
+    const [idCategoriaSelecionada, setIdCategoriaSelecionada] = useState(null);
 
 
-    // --- LÓGICA DE NEGÓCIO ---
+    // ===== LÓGICA DE NEGÓCIO ===== 
 
     // LÓGICA COMPLEXA: FILTRAGEM DE CATEGORIAS
     // Filtramos o array de categorias para exibir APENAS as que são do tipo 'expense' (despesa),
     // pois não faz sentido definir um limite de orçamento para uma 'income' (receita).
     const categoriasDeDespesa = categorias.filter(c => c.tipo === 'expense');
+
 
     /**
      * Abre o modal para definir/editar a meta de uma categoria específica.
@@ -81,6 +72,7 @@ const BudgetsScreen = ({ navigation }) => {
         setModalVisivel(true); // Abre o modal
     }
 
+
     /**
      * Valida o input e salva a nova meta (orçamento) no Contexto/AsyncStorage.
      */
@@ -91,7 +83,7 @@ const BudgetsScreen = ({ navigation }) => {
         const valor = parseFloat(valorMetaInput.replace(',', '.')) || 0;
 
         if (valor < 0) {
-            Alert.alert("Erro", "O valor da meta não pode ser negativo.");
+            console.log("Erro: O valor da meta não pode ser negativo.");
             return;
         }
 
@@ -103,6 +95,38 @@ const BudgetsScreen = ({ navigation }) => {
         setCategoriaAtual(null);
         setValorMetaInput('');
     }
+
+
+    /**
+     * Navega para a tela AddCategory, passando o item para edição.
+     */
+    const handleEditarCategoria = (categoria) => {
+        setIdCategoriaSelecionada(null); // Fecha o menu
+        // Navega para a tela de Adicionar, mas passando o item
+        navigation.navigate('AdicionarCategoria', { categoria: categoria });
+    };
+
+
+    /**
+     * Mostra um alerta e deleta a categoria (e seus dados associados).
+     */
+    const handleDeletarCategoria = (categoria) => {
+        setIdCategoriaSelecionada(null); // Fecha o menu
+        deletarCategoria(categoria.id)
+        /* Alert.alert(
+            `Deletar "${categoria.nome}"?`,
+            "Atenção: Deletar esta categoria também irá apagar TODAS as transações e orçamentos associados a ela. Esta ação não pode ser desfeita.",
+            [
+                { text: "Cancelar", style: "cancel" },
+                {
+                    text: "Deletar",
+                    style: "destructive",
+                    onPress: () => deletarCategoria(categoria.id)
+                }
+            ]
+        ); */
+    };
+
 
     /**
      * Renderiza o card individual para cada item da FlatList de Orçamentos.
@@ -120,28 +144,55 @@ const BudgetsScreen = ({ navigation }) => {
         // Evita divisão por zero se a meta for 0.
         const percentagem = meta > 0 ? (gastos / meta) * 100 : 0;
 
+        // Verifica se este é o item com o menu aberto
+        const estaSelecionado = idCategoriaSelecionada === item.id;
+
         return (
             // Card de Orçamento clicável
-            <Pressable style={styles.cardOrcamentoContainer} onPress={() => abrirModalMeta(item)}>
-                {/* Cabeçalho (Nome e Ícone de Lápis) */}
-                <View style={styles.cardOrcamentoCabecalho}>
-                    <Text style={styles.cardOrcamentoTitulo}>{item.nome}</Text>
-                    <Ionicons name="pencil" size={16} color="#007bff" />
-                </View>
+            <View>
+                <Pressable style={styles.cardOrcamentoContainer} 
+                    onPress={() => abrirModalMeta(item)} // Clique rápido = Edita a Meta
+                    onLongPress={() => setIdCategoriaSelecionada(item.id)} // Clique longo = Abre o Menu
+                >
+                    {/* Cabeçalho (Nome e Ícone de Lápis) */}
+                    <View style={styles.cardOrcamentoCabecalho}>
+                        <Text style={styles.cardOrcamentoTitulo}>{item.nome}</Text>
+                        <Ionicons name="pencil" size={16} color="#007bff" />
+                    </View>
 
-                {/* Barra de Progresso */}
-                <BarraProgresso progresso={percentagem} />
+                    {/* Barra de Progresso */}
+                    <BarraProgresso progresso={percentagem} />
 
-                {/* Valores (Gasto / Meta) */}
-                <View style={styles.cardOrcamentoValoresContainer}>
-                    <Text style={styles.cardOrcamentoValorGasto}>{formatarMoeda(gastos)}</Text>
-                    <Text style={styles.cardOrcamentoValorMeta}>
-                        / {meta > 0 ? formatarMoeda(meta) : 'Sem meta'}
-                    </Text>
-                </View>
-            </Pressable>
+                    {/* Valores (Gasto / Meta) */}
+                    <View style={styles.cardOrcamentoValoresContainer}>
+                        <Text style={styles.cardOrcamentoValorGasto}>{FormatarMoeda(gastos)}</Text>
+                        <Text style={styles.cardOrcamentoValorMeta}>
+                            / {meta > 0 ? FormatarMoeda(meta) : 'Sem meta'}
+                        </Text>
+                    </View>
+                </Pressable>
+
+                {/*  MENU CONDICIONAL (Aparece no clique longo) */}
+                {estaSelecionado && (
+                    <View style={styles.menuContainer}>
+                        <Pressable style={[styles.menuBotao, styles.menuBotaoEditar]} onPress={() => handleEditarCategoria(item)}>
+                            <Ionicons name="create-outline" size={20} color="#fff" />
+                            <Text style={styles.menuTexto}>Editar Categoria</Text>
+                        </Pressable>
+                        <Pressable style={[styles.menuBotao, styles.menuBotaoDeletar]} onPress={() => handleDeletarCategoria(item)}>
+                            <Ionicons name="trash-outline" size={20} color="#fff" />
+                            <Text style={styles.menuTexto}>Excluir</Text>
+                        </Pressable>
+                        <Pressable style={[styles.menuBotao, styles.menuBotaoCancelar]} onPress={() => setIdCategoriaSelecionada(null)}>
+                            <Ionicons name="close-circle-outline" size={20} color="#fff" />
+                            <Text style={styles.menuTexto}>Cancelar</Text>
+                        </Pressable>
+                    </View>
+                )}
+            </View>
         );
     };
+
 
     /**
      * Navega para a tela de Adicionar Categoria.
@@ -176,6 +227,8 @@ const BudgetsScreen = ({ navigation }) => {
                         <Text style={styles.textoListaVazia}>Nenhuma categoria de despesa encontrada.</Text>
                     </View>
                 )}
+                // extraData diz à FlatList para re-renderizar quando o item selecionado mudar
+                extraData={idCategoriaSelecionada}
             />
 
             {/* Modal para Definir/Editar Meta */}
@@ -194,23 +247,23 @@ const BudgetsScreen = ({ navigation }) => {
                         </Text>
 
                         <Text style={styles.modalLabelInput}>Valor Limite (R$)</Text>
-                        <TextInput 
-                            style={styles.modalInput} 
-                            placeholder="Ex: 500.00" 
+                        <TextInput
+                            style={styles.modalInput}
+                            placeholder="Ex: 500.00"
                             keyboardType="numeric"
-                            value={valorMetaInput} 
-                            onChangeText={setValorMetaInput} 
+                            value={valorMetaInput}
+                            onChangeText={setValorMetaInput}
                         />
 
                         {/* Botões do Modal (Cancelar e Salvar) */}
                         <View style={styles.modalContainerBotoes}>
-                            <Pressable 
+                            <Pressable
                                 style={[styles.modalBotao, styles.modalBotaoCancelar]}
                                 onPress={() => setModalVisivel(false)}
                             >
                                 <Text style={styles.modalTextoBotao}>Cancelar</Text>
                             </Pressable>
-                            <Pressable 
+                            <Pressable
                                 style={[styles.modalBotao, styles.modalBotaoSalvar]}
                                 onPress={handleSalvarMeta}
                             >
@@ -305,6 +358,36 @@ const styles = StyleSheet.create({
     barraProgressoPreenchimento: {
         height: '100%',
         borderRadius: 5,
+    },
+    // NOVOS ESTILOS PARA O MENU DE EDIÇÃO/EXCLUSÃO 
+    menuContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        backgroundColor: '#4a4a4a', // Cor de fundo do menu
+        borderBottomLeftRadius: 8,
+        borderBottomRightRadius: 8,
+        padding: 5,
+        marginHorizontal: 20, // Alinha com o padding da lista
+        marginTop: -10, // Puxa o menu para perto do card
+        marginBottom: 15, // Empurra o próximo card para baixo
+        elevation: 2,
+    },
+    menuBotao: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 8,
+        borderRadius: 5,
+        marginHorizontal: 4,
+    },
+    menuBotaoEditar: { backgroundColor: '#007bff' }, // Azul
+    menuBotaoDeletar: { backgroundColor: '#dc3545' }, // Vermelho
+    menuBotaoCancelar: { backgroundColor: '#6c757d' }, // Cinza
+    menuTexto: {
+        color: '#fff',
+        fontWeight: 'bold',
+        marginLeft: 5,
     },
     // Estilos do Modal
     modalContainerFundo: {

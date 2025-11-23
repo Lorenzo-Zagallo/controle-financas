@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { View, StyleSheet, Text, Dimensions, ScrollView } from 'react-native';
 import { useFinancas } from "../../context/ContextoFinancas";
 import { PieChart } from "react-native-chart-kit";

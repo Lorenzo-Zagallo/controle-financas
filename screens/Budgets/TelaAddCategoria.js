@@ -27,18 +27,28 @@ const SeletorDeCor = ({ corSelecionada, selecionar }) => {
     );
 };
 
-const AddCategoryScreen = ({ navigation }) => {
+// A TELA RECEBE 'route' PARA VERIFICAR OS PARÂMETROS
+const AddCategoryScreen = ({ navigation, route }) => {
 
-    const { salvarNovaCategoria } = useFinancas();
+    // Pega a categoria passada por parâmetro (se existir)
+    const categoriaParaEditar = route.params?.categoria;
+    
+    // Verifica se estamos em modo de edição
+    const isEditing = !!categoriaParaEditar; // true se 'categoriaParaEditar' não for nulo
 
-    const [nome, setNome] = useState('');
-    const [tipo, setTipo] = useState('expense'); // expense (despesa) ou income (receita)
-    const [cor, setCor] = useState('#FF6384');
+    // Puxa as funções do contexto
+    const { salvarNovaCategoria, editarCategoria } = useFinancas();
 
-    const salvar = () => { // handleSave para salvar a nova categoria
+    // LÓGICA DE PRÉ-PREENCHIMENTO:
+    // Se 'isEditing' for true, usa os valores da categoria. Se não, usa valores padrão.
+    const [nome, setNome] = useState(categoriaParaEditar?.nome || '');
+    const [tipo, setTipo] = useState(categoriaParaEditar?.tipo || 'expense');
+    const [cor, setCor] = useState(categoriaParaEditar?.cor || '#FF6384');
+
+    const salvar = () => {
         if (!nome.trim()) {
             console.log('Nome da categoria vazio');
-            Alert.alert('Erro', 'O nome da categoria não pode estar vazio.');
+            console.log('Erro: O nome da categoria não pode estar vazio.');
             return;
         }
 
@@ -48,19 +58,27 @@ const AddCategoryScreen = ({ navigation }) => {
             cor,
         };
 
-        // chama a função FinanceContext.js para salvar e persistir a nova categoria
-        salvarNovaCategoria(novaCategoria);
+        // LÓGICA DE SALVAR/EDITAR:
+        if (isEditing) {
+            // Chama a função de EDIÇÃO do contexto
+            editarCategoria(categoriaParaEditar.id, novaCategoria);
+            console.log(`Sucesso: Categoria "${nome}" atualizada!`);
+        } else {
+            // Chama a função de CRIAÇÃO do contexto
+            salvarNovaCategoria(novaCategoria);
+            console.log(`Sucesso: Categoria "${nome}" adicionada!`);
+        }
 
         console.log('Categoria salva:', novaCategoria);
-        Alert.alert('Sucesso', `Categoria "${nome}" adicionada e salva!`);
+        console.log(`Sucesso: Categoria "${nome}" adicionada e salva!`);
 
-        // volta para a tela anterior (BudgetsScreen)
         navigation.goBack();
     };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.screen}>
-            <Text style={styles.title}>Nova Categoria</Text>
+            {/* O título muda dependendo do modo */}
+            <Text style={styles.title}>{isEditing ? 'Editar Categoria' : 'Nova Categoria'}</Text>
 
             {/* Grupo de Input: Nome */}
             <View style={styles.inputGroup}>
@@ -73,22 +91,22 @@ const AddCategoryScreen = ({ navigation }) => {
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>Tipo de Transação:</Text>
                 <View style={styles.radioContainer}>
-                    <TouchableOpacity style={[styles.radioButton, tipo === 'expense' && styles.radioActive]}
+                    <Pressable style={[styles.radioButton, tipo === 'expense' && styles.radioActive]}
                         onPress={() => setTipo('expense')}>
                         <Text style={tipo === 'expense' ? styles.radioTextActive : styles.radioText}>Despesa</Text>
-                    </TouchableOpacity>
+                    </Pressable>
 
-                    <TouchableOpacity style={[styles.radioButton, tipo === 'income' && styles.radioActive]}
+                    <Pressable style={[styles.radioButton, tipo === 'income' && styles.radioActive]}
                         onPress={() => setTipo('income')}>
                         <Text style={tipo === 'income' ? styles.radioTextActive : styles.radioText}>Receita</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
             </View>
 
             <SeletorDeCor corSelecionada={cor} selecionar={setCor} />
 
             <Pressable style={styles.saveButton} onPress={salvar}>
-                <Text style={styles.saveButtonText}>Salvar Categoria</Text>
+                <Text style={styles.saveButtonText}>{isEditing ? 'Atualizar Categoria' : 'Salvar Categoria'}</Text>
             </Pressable>
         </ScrollView>
     );

@@ -9,10 +9,10 @@ const name = 'Usuário';
 
 const StackPainel = () => {
     return (
-        <Stack.Navigator initialRouteName="PainelPrincipal"
+        <Stack.Navigator initialRouteName="Dashboard"
             screenOptions={{ headerShown: true }}>
             <Stack.Screen
-                name="PainelPrincipal"
+                name="Dashboard"
                 component={TelaPainel}
                 options={{
                     headerTitle: () => (
@@ -21,7 +21,7 @@ const StackPainel = () => {
                             <Text style={styles.name}>{name}</Text>
                         </Text>
                     ),
-                    headerStyle: { backgroundColor: '#8e34caff' }
+                    headerStyle: { backgroundColor: '#8e34ca' }
                 }} />
         </Stack.Navigator>
     );
