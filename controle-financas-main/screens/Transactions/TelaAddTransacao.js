@@ -91,7 +91,7 @@ const TelaAddTransacao = ({ navigation }) => {
             return;
         }
 
-        // converte DD/MM/AAAA para o formato YYYY-MM-DD para salvar no Contexto/AsyncStorage
+        // converte DD/MM/AAAA para o formato YYYY-MM-DD para salvar no Contexto/Firebase
         const [dia, mes, ano] = dataInput.split('/');
         const dataParaSalvar = `${ano}-${mes}-${dia}`;
 

@@ -74,7 +74,7 @@ const BudgetsScreen = ({ navigation }) => {
 
 
     /**
-     * Valida o input e salva a nova meta (orçamento) no Contexto/AsyncStorage.
+    * Valida o input e salva a nova meta (orçamento) no Contexto/Firebase.
      */
     const handleSalvarMeta = () => {
         // LÓGICA DE PARSE (Conversão):
