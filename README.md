@@ -87,7 +87,7 @@ Certifique-se de ter os seguintes softwares instalados:
 1.  **Clone o Repositório:**
     ```bash
     git clone [LINK DO SEU REPOSITÓRIO]
-    cd controle-financas-main
+    cd controle-financas
     ```
 
 2.  **Instale as Dependências:**
